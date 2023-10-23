@@ -1,0 +1,23 @@
+PODS:
+  - SnapKit (5.6.0)
+  - SupraButton (0.1.0):
+    - SnapKit
+
+DEPENDENCIES:
+  - SupraButton (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - SnapKit
+
+EXTERNAL SOURCES:
+  SupraButton:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
+  SupraButton: 5d4b36c31d8fb4c08066e966aa645d9e5b5917ca
+
+PODFILE CHECKSUM: 6574009f8382c8101f97e3bc378fb8844c03d09d
+
+COCOAPODS: 1.12.1

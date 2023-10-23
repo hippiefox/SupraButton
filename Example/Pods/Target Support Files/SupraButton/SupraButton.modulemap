@@ -1,0 +1,6 @@
+framework module SupraButton {
+  umbrella header "SupraButton-umbrella.h"
+
+  export *
+  module * { export * }
+}
