@@ -26,6 +26,14 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
         }
     }
 
+    public var contentHeight: CGFloat = 44 {
+        didSet {
+            contentView.snp.updateConstraints {
+                $0.height.equalTo(contentHeight)
+            }
+        }
+    }
+
     public var buttons: [SupraButton] = []
 
     override public init(frame: CGRect) {
@@ -33,7 +41,7 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
 
         addSubview(contentView)
         contentView.snp.makeConstraints {
-            $0.height.equalTo(44)
+            $0.height.equalTo(contentHeight)
             $0.top.equalTo(self.safeAreaLayoutGuide.snp.top)
             $0.left.equalTo(self.safeAreaLayoutGuide.snp.left)
             $0.right.equalTo(self.safeAreaLayoutGuide.snp.right)
@@ -64,6 +72,7 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
             btn.icon4DisabledState = item.icon4Disable
             btn.titleColor4DisabledState = item.titleColor4Disable
 
+            btn.iconTitleSpace = item.iconTitleSpace
             btn.titleFont = item.titleFont
             btn.iconSize = item.iconSize
             btn.iconTintColor = item.iconTintColor

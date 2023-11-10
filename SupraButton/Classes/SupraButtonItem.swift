@@ -24,6 +24,7 @@ public protocol SupraButtonItem: Equatable {
     var titleFont: UIFont { get }
     var iconSize: CGSize { get }
     var iconTintColor: UIColor?{get}
+    var iconTitleSpace: CGFloat{get}
 }
 
 public extension SupraButtonItem {
@@ -42,4 +43,5 @@ public extension SupraButtonItem {
     var titleFont: UIFont { UIFont.systemFont(ofSize: 12) }
     var iconSize: CGSize { CGSize(width: 22, height: 22) }
     var iconTintColor: UIColor?{nil}
+    var iconTitleSpace: CGFloat{0}
 }
