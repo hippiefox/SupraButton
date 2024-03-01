@@ -109,7 +109,7 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
             }
             buttons[idx].isSelected = true
         case .disabled:
-            buttons[idx].isEnabled = true
+            buttons[idx].isEnabled = false
         default:
             break
         }
