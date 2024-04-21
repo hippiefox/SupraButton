@@ -1,9 +1,10 @@
 PODS:
   - SnapKit (5.6.0)
-  - SupraButton (0.1.0):
+  - SupraButton (0.2.1):
     - SnapKit
 
 DEPENDENCIES:
+  - SnapKit
   - SupraButton (from `../`)
 
 SPEC REPOS:
@@ -16,8 +17,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
-  SupraButton: 5d4b36c31d8fb4c08066e966aa645d9e5b5917ca
+  SupraButton: 4d9e3396f12f4d7daf8616d99584f819be6647af
 
-PODFILE CHECKSUM: 6574009f8382c8101f97e3bc378fb8844c03d09d
+PODFILE CHECKSUM: a228d777b2ca8bfceebb376503dc63961e631e35
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.15.2

@@ -4,6 +4,7 @@ platform :ios, '13.0'
 
 target 'SupraButton_Example' do
   pod 'SupraButton', :path => '../'
+  pod 'SnapKit'
 end
 
 post_install do |installer|
