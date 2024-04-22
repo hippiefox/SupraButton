@@ -26,47 +26,47 @@ open class SupraSpringButton: SupraButton {
     }
 
     override open var intrinsicContentSize: CGSize {
-        var text = title4NormalState ?? ""
+        var _text = text(for: .normal) ?? ""
 
-        if isSelected && title4SelectedState != nil {
-            text = title4SelectedState!
+        if isSelected,
+           let t = text(for: .selected) {
+            _text = t
         }
 
-        if isEnabled == false && title4DisabledState != nil {
-            text = title4DisabledState!
+        if isEnabled == false,
+           let t = text(for: .disabled) {
+            _text = t
         }
 
-        var titleSize = CGSize.zero
-        if text.isEmpty == false {
-            titleSize = (text as NSString).boundingRect(with: .init(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
+        var _textSize: CGSize = .zero
+        if _text.isEmpty == false {
+            _textSize = (_text as NSString).boundingRect(with: .init(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
                                                         options: .usesLineFragmentOrigin,
-                                                        attributes: [.font: titleFont],
+                                                        attributes: [.font: font],
                                                         context: nil).size
-            titleSize = .init(width: ceil(titleSize.width), height: ceil(titleSize.height))
+            _textSize = .init(width: ceil(_textSize.width), height: ceil(_textSize.height))
         }
 
-        let gap = iconTitleSpace
-        let iconSize = self.iconSize
         var contentSize: CGSize = .zero
 
         switch iconDirection {
         case .top, .bottom:
             if maxWidth > 0 {
                 contentSize = .init(width: maxWidth,
-                                    height: iconSize.height + iconTitleSpace + titleSize.height)
+                                    height: iconSize.height + iconTextGap + _textSize.height)
             } else {
-                contentSize = .init(width: max(iconSize.width, titleSize.width),
-                                    height: iconSize.height + iconTitleSpace + titleSize.height)
+                contentSize = .init(width: max(iconSize.width, _textSize.width),
+                                    height: iconSize.height + iconTextGap + _textSize.height)
             }
             contentSize = .init(width: contentSize.width + contentEdgesInset.left + contentEdgesInset.right,
                                 height: contentSize.height + contentEdgesInset.top + contentEdgesInset.bottom)
         case .left, .right:
             if maxHeight > 0 {
-                contentSize = .init(width: iconSize.width + iconTitleSpace + titleSize.width,
+                contentSize = .init(width: iconSize.width + iconTextGap + _textSize.width,
                                     height: maxHeight)
             } else {
-                contentSize = .init(width: iconSize.width + iconTitleSpace + titleSize.width,
-                                    height: max(iconSize.height, titleSize.height))
+                contentSize = .init(width: iconSize.width + iconTextGap + _textSize.width,
+                                    height: max(iconSize.height, _textSize.height))
             }
             contentSize = .init(width: contentSize.width + contentEdgesInset.left + contentEdgesInset.right,
                                 height: contentSize.height + contentEdgesInset.top + contentEdgesInset.bottom)

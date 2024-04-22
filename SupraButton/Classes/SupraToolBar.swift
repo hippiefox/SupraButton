@@ -9,6 +9,22 @@ import Foundation
 import SnapKit
 import UIKit
 
+public struct SupraToolLayout {
+    /// 列数
+    public var column = 0
+    /// 单行的高度
+    public var rowHeight: CGFloat = 44
+    
+    public init(){
+        
+    }
+    
+    public init(column: Int,rowHeight: CGFloat){
+        self.column = column
+        self.rowHeight = rowHeight
+    }
+}
+
 open class SupraToolBar<Item: SupraButtonItem>: UIView {
     public var tapItemBlock: ((Item) -> Void)?
 
@@ -18,19 +34,25 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
         }
     }
 
-    public lazy var contentView = UIView()
-
-    public var iconSize: CGSize = .init(width: 22, height: 22) {
-        didSet {
-            buttons.forEach { $0.iconSize = iconSize }
+    public var _contentHeight: CGFloat {
+        let _column = layoutConfig.column > 0 ? layoutConfig.column : items.count
+        let _rowHeight = layoutConfig.rowHeight
+        var _row = 1
+        // 确认行数
+        if layoutConfig.column > 0 {
+            _row = items.count / _column
+            if items.count % _column > 0 {
+                _row += 1
+            }
         }
+        return CGFloat(_row) * _rowHeight
     }
 
-    public var contentHeight: CGFloat = 44 {
+    public lazy var contentView = UIView()
+
+    public var layoutConfig = SupraToolLayout() {
         didSet {
-            contentView.snp.updateConstraints {
-                $0.height.equalTo(contentHeight)
-            }
+            updateButtonsLayout()
         }
     }
 
@@ -40,12 +62,6 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
         super.init(frame: frame)
 
         addSubview(contentView)
-        contentView.snp.makeConstraints {
-            $0.height.equalTo(contentHeight)
-            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top)
-            $0.left.equalTo(self.safeAreaLayoutGuide.snp.left)
-            $0.right.equalTo(self.safeAreaLayoutGuide.snp.right)
-        }
     }
 
     public required init?(coder: NSCoder) {
@@ -56,32 +72,42 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
         buttons.forEach { $0.removeFromSuperview() }
         buttons.removeAll()
 
-        var preview: UIView?
         for item in items {
             let btn = SupraButton()
             buttons.append(btn)
-            btn.title4NormalState = item.title4Normal
-            btn.icon4NormalState = item.icon4Normal
-            btn.titleColor4NormalState = item.titleColor4Normal
-
-            btn.title4SelectedState = item.title4Selected
-            btn.icon4SelectedState = item.icon4Selected
-            btn.titleColor4SelectedState = item.titleColor4Seleted
-
-            btn.title4DisabledState = item.title4Disable
-            btn.icon4DisabledState = item.icon4Disable
-            btn.titleColor4DisabledState = item.titleColor4Disable
-
-            btn.iconTitleSpace = item.iconTitleSpace
-            btn.titleFont = item.titleFont
-            btn.iconSize = item.iconSize
-            btn.iconTintColor = item.iconTintColor
+            btn.config(item: item)
             btn.addTarget(self, action: #selector(tapButton(_:)), for: .touchUpInside)
             contentView.addSubview(btn)
-            btn.snp.makeConstraints {
-                $0.height.equalToSuperview()
-                $0.width.equalToSuperview().dividedBy(items.count)
-                $0.top.equalToSuperview()
+        }
+        updateButtonsLayout()
+    }
+
+    open func updateButtonsLayout() {
+        guard items.isEmpty == false else { return }
+
+        let _column = layoutConfig.column > 0 ? layoutConfig.column : items.count
+        let _rowHeight = layoutConfig.rowHeight
+        var _row = 1
+        // 确认行数
+        if layoutConfig.column > 0 {
+            _row = items.count / _column
+            if items.count % _column > 0 {
+                _row += 1
+            }
+        }
+        // 排列
+        var preview: UIView?
+        for (i, btn) in buttons.enumerated() {
+            btn.snp.removeConstraints()
+            let nowRow = i / _column // 基于0index
+            let nowColumn = i % _column
+            if nowColumn == 0 {
+                preview = nil
+            }
+            btn.snp.remakeConstraints {
+                $0.height.equalTo(_rowHeight)
+                $0.width.equalToSuperview().dividedBy(_column)
+                $0.top.equalToSuperview().offset(CGFloat(nowRow) * _rowHeight)
                 if preview == nil {
                     $0.left.equalToSuperview()
                 } else {
@@ -90,6 +116,14 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
             }
             preview = btn
         }
+        setNeedsLayout()
+        contentView.snp.remakeConstraints {
+            $0.height.equalTo(CGFloat(_row) * _rowHeight)
+            $0.top.equalTo(self.safeAreaLayoutGuide.snp.top)
+            $0.left.equalTo(self.safeAreaLayoutGuide.snp.left)
+            $0.right.equalTo(self.safeAreaLayoutGuide.snp.right)
+        }
+        layoutIfNeeded()
     }
 
     @objc open func tapButton(_ sender: SupraButton) {
@@ -97,21 +131,12 @@ open class SupraToolBar<Item: SupraButtonItem>: UIView {
         tapItemBlock?(items[idx])
     }
 
-    open func toggleItem(item: Item, state: UIControlState, isExclusive: Bool) {
+    open func update(state: UIControl.State, at item: Item, selectedExclusive: Bool = false) {
         guard let idx = items.firstIndex(of: item) else { return }
-        switch state {
-        case .normal:
-            buttons[idx].isSelected = false
-            buttons[idx].isEnabled = true
-        case .selected:
-            if isExclusive {
-                buttons.forEach { $0.isSelected = false }
-            }
-            buttons[idx].isSelected = true
-        case .disabled:
-            buttons[idx].isEnabled = false
-        default:
-            break
+        if selectedExclusive,
+           case .selected = state {
+            buttons.forEach { $0.isSelected = false }
         }
+        buttons[idx].update(state: state)
     }
 }

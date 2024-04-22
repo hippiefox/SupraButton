@@ -17,75 +17,87 @@ public extension SupraButton {
     }
 }
 
-open class SupraButton: UIControl {
-    // MARK: (icon)
+extension UIControl.State: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
+    }
+}
 
-    public var icon4NormalState: UIImage? {
+open class SupraButton: UIControl {
+    public var allSupportedState: [UIControl.State] = [.normal, .disabled, .selected]
+
+    public var icons: [UIControl.State: UIImage] = [:] {
         didSet {
-            iconImageView.image = icon4NormalState
+            iconImageView.image = icons[.normal]
         }
     }
 
-    public var icon4SelectedState: UIImage?
-    public var icon4DisabledState: UIImage?
-
-    // MARK: (title)
-
-    public var title4NormalState: String? {
+    public var textColors: [UIControl.State: UIColor] = [:] {
         didSet {
-            guard title4NormalState != oldValue else { return }
-            titleLabel.text = title4NormalState
+            textLabel.textColor = textColors[.normal]
+        }
+    }
+
+    public var texts: [UIControl.State: String] = [:] {
+        didSet {
+            textLabel.text = texts[.normal]
             setNeedsLayout()
         }
     }
 
-    public var title4SelectedState: String?
-    public var title4DisabledState: String?
-
-    // MARK: (color)
-
-    public var titleColor4NormalState: UIColor = .black {
-        didSet {
-            titleLabel.textColor = titleColor4NormalState
+    public func icon(for state: UIControl.State) -> UIImage? {
+        var t = icons[state]
+        if t == nil {
+            t = icons[.normal]
         }
+        return t
     }
 
-    public var titleColor4SelectedState: UIColor?
-    public var titleColor4DisabledState: UIColor?
+    public func text(for state: UIControl.State) -> String? {
+        var t = texts[state]
+        if t == nil {
+            t = texts[.normal]
+        }
+        return t
+    }
 
-    public var titleFont: UIFont = .systemFont(ofSize: 12) {
+    public func textColor(for state: UIControl.State) -> UIColor? {
+        var t = textColors[state]
+        if t == nil {
+            t = textColors[.normal]
+        }
+        return t
+    }
+
+    public var font: UIFont = .systemFont(ofSize: 12) {
         didSet {
-            guard titleLabel != oldValue else { return }
-            titleLabel.font = titleFont
+            textLabel.font = font
             setNeedsLayout()
         }
     }
 
     public var iconDirection: Direction = .top {
         didSet {
-            guard iconDirection != oldValue else { return }
             setNeedsLayout()
         }
     }
 
     /// 图片和文字之间的间距
-    public var iconTitleSpace: CGFloat = 0 {
+    public var iconTextGap: CGFloat = 0 {
         didSet {
-            guard iconTitleSpace != oldValue else { return }
             setNeedsLayout()
         }
     }
 
     public var iconSize: CGSize = .zero {
         didSet {
-            guard iconSize != oldValue else { return }
             setNeedsLayout()
         }
     }
 
-    public lazy var titleLabel: UILabel = {
+    public lazy var textLabel: UILabel = {
         let label = UILabel()
-        label.font = titleFont
+        label.font = font
         return label
     }()
 
@@ -97,48 +109,35 @@ open class SupraButton: UIControl {
 
     override open var isSelected: Bool {
         didSet {
-            guard isSelected != oldValue else { return }
-
             if isSelected {
-                titleLabel.text = title4SelectedState == nil ? title4NormalState : title4SelectedState
-                titleLabel.textColor = titleColor4SelectedState == nil ? titleColor4NormalState : titleColor4SelectedState
-                iconImageView.image = icon4SelectedState == nil ? icon4NormalState : icon4SelectedState
+                textLabel.text = text(for: .selected)
+                textLabel.textColor = textColor(for: .selected)
+                iconImageView.image = icon(for: .selected)
             } else {
-                iconImageView.image = icon4NormalState
-                titleLabel.text = title4NormalState
-                titleLabel.textColor = titleColor4NormalState
+                textLabel.text = text(for: .normal)
+                textLabel.textColor = textColor(for: .normal)
+                iconImageView.image = icon(for: .normal)
             }
-            setNeedsLayout()
         }
     }
 
     override open var isEnabled: Bool {
         didSet {
-            guard isEnabled != oldValue else { return }
-
             if isEnabled == false {
-                titleLabel.text = title4DisabledState == nil ? title4NormalState : title4DisabledState
-                titleLabel.textColor = titleColor4DisabledState == nil ? titleColor4NormalState : titleColor4DisabledState
-                iconImageView.image = icon4DisabledState == nil ? icon4NormalState : icon4DisabledState
+                textLabel.text = text(for: .disabled)
+                textLabel.textColor = textColor(for: .disabled)
+                iconImageView.image = icon(for: .disabled)
             } else {
-                iconImageView.image = icon4NormalState
-                titleLabel.text = title4NormalState
-                titleLabel.textColor = titleColor4NormalState
+                textLabel.text = text(for: .normal)
+                textLabel.textColor = textColor(for: .normal)
+                iconImageView.image = icon(for: .normal)
             }
-            setNeedsLayout()
-        }
-    }
-
-    public var iconTintColor: UIColor? {
-        didSet {
-            guard iconTintColor != oldValue else { return }
-            self.iconImageView.tintColor = iconTintColor
         }
     }
 
     override public init(frame: CGRect) {
         super.init(frame: frame)
-        addSubview(titleLabel)
+        addSubview(textLabel)
         addSubview(iconImageView)
     }
 
@@ -153,6 +152,32 @@ open class SupraButton: UIControl {
         calTextOrigin(bounds)
         calIconOrigin(bounds)
     }
+
+    public func config(item: any SupraButtonItem) {
+        allSupportedState.forEach {
+            texts[$0] = item.text(for: $0)
+            textColors[$0] = item.textColor(for: $0)
+            icons[$0] = item.icon(for: $0)
+        }
+        iconSize = item.iconSize
+        iconDirection = item.iconDirection
+        font = item.font
+        iconTextGap = item.iconTextGap
+    }
+    
+    public func update(state: UIControl.State){
+        switch state {
+        case .normal:
+            isSelected = false
+            isEnabled = true
+        case .selected:
+            isSelected = true
+        case .disabled:
+            isEnabled = false
+        default:
+            break
+        }
+    }
 }
 
 extension SupraButton {
@@ -161,21 +186,21 @@ extension SupraButton {
 
         switch iconDirection {
         case .top, .bottom: rectWidth = rect.width
-        case .left, .right: rectWidth = rect.width - iconTitleSpace - iconSize.width
+        case .left, .right: rectWidth = rect.width - iconTextGap - iconSize.width
         }
 
-        let text = titleLabel.text ?? ""
+        let text = textLabel.text ?? ""
         var textSize: CGSize = CGSize.zero
 
         if text.isEmpty == false {
             textSize = (text as NSString).boundingRect(with: .init(width: rectWidth, height: CGFloat.greatestFiniteMagnitude),
                                                        options: .usesLineFragmentOrigin,
-                                                       attributes: [.font: titleFont],
+                                                       attributes: [.font: font],
                                                        context: nil).size
             textSize = CGSize(width: ceil(textSize.width), height: ceil(textSize.height))
         }
 
-        titleLabel.frame.size = textSize
+        textLabel.frame.size = textSize
     }
 
     public func calIconSize(_ rect: CGRect) {
@@ -186,20 +211,20 @@ extension SupraButton {
         var x: CGFloat = 0, y: CGFloat = 0
         switch iconDirection {
         case .top:
-            x = (rect.width - titleLabel.frame.size.width) / 2
-            y = (rect.height - iconSize.height - iconTitleSpace - titleLabel.frame.height) / 2 + iconSize.height + iconTitleSpace
+            x = (rect.width - textLabel.frame.size.width) / 2
+            y = (rect.height - iconSize.height - iconTextGap - textLabel.frame.height) / 2 + iconSize.height + iconTextGap
         case .bottom:
-            x = (rect.width - titleLabel.frame.size.width) / 2
-            y = (rect.height - iconSize.height - iconTitleSpace - titleLabel.frame.height) / 2
+            x = (rect.width - textLabel.frame.size.width) / 2
+            y = (rect.height - iconSize.height - iconTextGap - textLabel.frame.height) / 2
         case .left:
-            x = (rect.width - titleLabel.frame.size.width - iconSize.width - iconTitleSpace) / 2 + iconSize.width + iconTitleSpace
-            y = (rect.height - titleLabel.frame.size.height) / 2
+            x = (rect.width - textLabel.frame.size.width - iconSize.width - iconTextGap) / 2 + iconSize.width + iconTextGap
+            y = (rect.height - textLabel.frame.size.height) / 2
         case .right:
-            x = (rect.width - titleLabel.frame.size.width - iconSize.width - iconTitleSpace) / 2
-            y = (rect.height - titleLabel.frame.size.height) / 2
+            x = (rect.width - textLabel.frame.size.width - iconSize.width - iconTextGap) / 2
+            y = (rect.height - textLabel.frame.size.height) / 2
         }
 
-        titleLabel.frame.origin = CGPoint(x: x, y: y)
+        textLabel.frame.origin = CGPoint(x: x, y: y)
     }
 
     public func calIconOrigin(_ rect: CGRect) {
@@ -207,15 +232,15 @@ extension SupraButton {
         switch iconDirection {
         case .top:
             x = (rect.width - iconSize.width) / 2
-            y = (rect.height - iconSize.height - iconTitleSpace - titleLabel.frame.height) / 2
+            y = (rect.height - iconSize.height - iconTextGap - textLabel.frame.height) / 2
         case .bottom:
             x = (rect.width - iconSize.width) / 2
-            y = (rect.height - iconSize.height - iconTitleSpace - titleLabel.frame.height) / 2 + iconTitleSpace + titleLabel.frame.size.height
+            y = (rect.height - iconSize.height - iconTextGap - textLabel.frame.height) / 2 + iconTextGap + textLabel.frame.size.height
         case .left:
-            x = (rect.width - titleLabel.frame.size.width - iconSize.width - iconTitleSpace) / 2
+            x = (rect.width - textLabel.frame.size.width - iconSize.width - iconTextGap) / 2
             y = (rect.height - iconSize.height) / 2
         case .right:
-            x = (rect.width - titleLabel.frame.size.width - iconSize.width - iconTitleSpace) / 2 + titleLabel.frame.size.width + iconTitleSpace
+            x = (rect.width - textLabel.frame.size.width - iconSize.width - iconTextGap) / 2 + textLabel.frame.size.width + iconTextGap
             y = (rect.height - iconSize.height) / 2
         }
 

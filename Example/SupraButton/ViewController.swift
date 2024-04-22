@@ -10,11 +10,16 @@ import UIKit
 import SupraButton
 
 enum Items: SupraButtonItem,CaseIterable{
-    case keyboard
-    case printer
-    case display
+    func icon(for state: UIControl.State) -> UIImage? {
+        switch self{
+        case .keyboard: return UIImage.init(systemName: "keyboard")
+        case .printer: return UIImage.init(systemName: "printer")
+        case .display:  return UIImage.init(systemName: "display")
+        }
     
-    var title4Normal: String?{
+    }
+    
+    func text(for state: UIControl.State) -> String? {
         switch self{
         case .keyboard: return "键盘"
         case .printer: return "打印机"
@@ -22,21 +27,17 @@ enum Items: SupraButtonItem,CaseIterable{
         }
     }
     
-    var icon4Normal: UIImage?{
-        switch self{
-        case .keyboard: return UIImage.init(systemName: "keyboard")
-        case .printer: return UIImage.init(systemName: "printer")
-        case .display:  return UIImage.init(systemName: "display")
+    func textColor(for state: UIControl.State) -> UIColor? {
+        switch state{
+        case .selected:return .green
+        default:    return .systemPink
         }
     }
     
-    var titleColor4Normal: UIColor{
-        return .systemPink
-    }
+    case keyboard
+    case printer
+    case display
     
-    var titleColor4Seleted: UIColor?{
-        return .green
-    }
 }
 
 class ViewController: UIViewController {
@@ -45,7 +46,6 @@ class ViewController: UIViewController {
         let t = SupraToolBar<Items>.init(frame: .zero)
         t.items = Items.allCases
         t.tapItemBlock = { [weak self] item in
-            t.toggleItem(item: item, state: .selected, isExclusive: true)
         }
         return t
     }()
@@ -53,11 +53,17 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        var layout = SupraToolLayout()
+        layout.column = 0
+        toolBar.layoutConfig = layout
         view.addSubview(toolBar)
         toolBar.snp.makeConstraints {
             $0.left.right.bottom.equalToSuperview()
-            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-44)
+            $0.top.equalTo(self.view.safeAreaLayoutGuide.snp.bottom).offset(-toolBar._contentHeight)
         }
+        
+        
+     
     }
 
     override func didReceiveMemoryWarning() {

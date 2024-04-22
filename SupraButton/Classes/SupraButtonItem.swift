@@ -9,39 +9,21 @@ import Foundation
 import UIKit
 
 public protocol SupraButtonItem: Equatable {
-    var title4Normal: String? { get }
-    var icon4Normal: UIImage? { get }
-    var titleColor4Normal: UIColor { get }
+    func icon(for state: UIControl.State) -> UIImage?
 
-    var title4Selected: String? { get }
-    var icon4Selected: UIImage? { get }
-    var titleColor4Seleted: UIColor? { get }
+    func text(for state: UIControl.State) -> String?
 
-    var title4Disable: String? { get }
-    var icon4Disable: UIImage? { get }
-    var titleColor4Disable: UIColor? { get }
+    func textColor(for state: UIControl.State) -> UIColor?
 
-    var titleFont: UIFont { get }
+    var font: UIFont { get }
     var iconSize: CGSize { get }
-    var iconTintColor: UIColor?{get}
-    var iconTitleSpace: CGFloat{get}
+    var iconTextGap: CGFloat { get }
+    var iconDirection: SupraButton.Direction { get }
 }
 
 public extension SupraButtonItem {
-    var title4Normal: String? { nil }
-    var icon4Normal: UIImage? { nil }
-    var titleColor4Normal: UIColor { .black }
-
-    var title4Selected: String? { nil }
-    var icon4Selected: UIImage? { nil }
-    var titleColor4Seleted: UIColor? { .black }
-
-    var title4Disable: String? { nil }
-    var icon4Disable: UIImage? { nil }
-    var titleColor4Disable: UIColor? { nil }
-    
-    var titleFont: UIFont { UIFont.systemFont(ofSize: 12) }
+    var font: UIFont { UIFont.systemFont(ofSize: 12) }
     var iconSize: CGSize { CGSize(width: 22, height: 22) }
-    var iconTintColor: UIColor?{nil}
-    var iconTitleSpace: CGFloat{0}
+    var iconTextGap: CGFloat { 0 }
+    var iconDirection: SupraButton.Direction { .top }
 }
