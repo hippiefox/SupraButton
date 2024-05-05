@@ -41,9 +41,9 @@ open class SupraSpringButton: SupraButton {
         var _textSize: CGSize = .zero
         if _text.isEmpty == false {
             _textSize = (_text as NSString).boundingRect(with: .init(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude),
-                                                        options: .usesLineFragmentOrigin,
-                                                        attributes: [.font: font],
-                                                        context: nil).size
+                                                         options: .usesLineFragmentOrigin,
+                                                         attributes: [.font: font],
+                                                         context: nil).size
             _textSize = .init(width: ceil(_textSize.width), height: ceil(_textSize.height))
         }
 
@@ -51,26 +51,23 @@ open class SupraSpringButton: SupraButton {
 
         switch iconDirection {
         case .top, .bottom:
-            if maxWidth > 0 {
-                contentSize = .init(width: maxWidth,
-                                    height: iconSize.height + iconTextGap + _textSize.height)
-            } else {
-                contentSize = .init(width: max(iconSize.width, _textSize.width),
-                                    height: iconSize.height + iconTextGap + _textSize.height)
-            }
-            contentSize = .init(width: contentSize.width + contentEdgesInset.left + contentEdgesInset.right,
-                                height: contentSize.height + contentEdgesInset.top + contentEdgesInset.bottom)
+            contentSize = .init(width: max(iconSize.width, _textSize.width),
+                                height: iconSize.height + iconTextGap + _textSize.height)
         case .left, .right:
-            if maxHeight > 0 {
-                contentSize = .init(width: iconSize.width + iconTextGap + _textSize.width,
-                                    height: maxHeight)
-            } else {
-                contentSize = .init(width: iconSize.width + iconTextGap + _textSize.width,
-                                    height: max(iconSize.height, _textSize.height))
-            }
-            contentSize = .init(width: contentSize.width + contentEdgesInset.left + contentEdgesInset.right,
-                                height: contentSize.height + contentEdgesInset.top + contentEdgesInset.bottom)
+            contentSize = .init(width: iconSize.width + iconTextGap + _textSize.width,
+                                height: max(iconSize.height, _textSize.height))
         }
+        contentSize = .init(width: contentSize.width + contentEdgesInset.left + contentEdgesInset.right,
+                            height: contentSize.height + contentEdgesInset.top + contentEdgesInset.bottom)
+
+        if maxWidth > 0 {
+            contentSize.width = maxWidth
+        }
+
+        if maxHeight > 0 {
+            contentSize.height = maxHeight
+        }
+
         return contentSize
     }
 }

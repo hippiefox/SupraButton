@@ -118,6 +118,7 @@ open class SupraButton: UIControl {
                 textLabel.textColor = textColor(for: .normal)
                 iconImageView.image = icon(for: .normal)
             }
+            setNeedsLayout()
         }
     }
 
@@ -132,6 +133,7 @@ open class SupraButton: UIControl {
                 textLabel.textColor = textColor(for: .normal)
                 iconImageView.image = icon(for: .normal)
             }
+            setNeedsLayout()
         }
     }
 
